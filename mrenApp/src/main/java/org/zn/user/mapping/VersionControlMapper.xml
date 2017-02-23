@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zn.user.dao.VersionControlDao" >
+    <resultMap id="BaseResultMap" type="org.zn.user.entity.VersionControl" >
+        <constructor >
+            <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <arg column="app_version" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="app_state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <arg column="app_device" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="app_description" jdbcType="VARCHAR" javaType="java.lang.String" />
+        </constructor>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, app_version, app_state, app_device, app_description
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select 
+        <include refid="Base_Column_List" />
+        from version_control
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <insert id="insert" parameterType="org.zn.user.entity.VersionControl" >
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into version_control (app_version, app_state, app_device, 
+            app_description)
+        values (#{appVersion,jdbcType=VARCHAR}, #{appState,jdbcType=INTEGER}, #{appDevice,jdbcType=VARCHAR}, 
+            #{appDescription,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.zn.user.entity.VersionControl" >
+        update version_control
+        <set >
+            <if test="appVersion != null" >
+                app_version = #{appVersion,jdbcType=VARCHAR},
+            </if>
+            <if test="appState != null" >
+                app_state = #{appState,jdbcType=INTEGER},
+            </if>
+            <if test="appDevice != null" >
+                app_device = #{appDevice,jdbcType=VARCHAR},
+            </if>
+            <if test="appDescription != null" >
+                app_description = #{appDescription,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+        delete from version_control
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    
+    <!-- 通过版本号查询状态 -->
+    <select id="selectByAppVersion" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select 
+        <include refid="Base_Column_List" />
+        from version_control
+        where app_version = #{appVersion,jdbcType=VARCHAR}
+        and app_device = #{appDevice,jdbcType=VARCHAR}
+    </select>
+
+</mapper>

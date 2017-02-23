@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zn.photos.dao.PhotoTypeDao" >
+    <resultMap id="BaseResultMap" type="org.zn.photos.entity.PhotoType" >
+        <constructor >
+            <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <arg column="category_id" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="photo_uuid" jdbcType="VARCHAR" javaType="java.lang.String" />
+        </constructor>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, category_id, photo_uuid
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from photo_type
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insert" parameterType="org.zn.photos.entity.PhotoType" >
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into photo_type (category_id, photo_uuid)
+        values (#{categoryId,jdbcType=VARCHAR}, #{photoUuid,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.zn.photos.entity.PhotoType" >
+        update photo_type
+        <set >
+            <if test="categoryId != null" >
+                category_id = #{categoryId,jdbcType=VARCHAR},
+            </if>
+            <if test="photoUuid != null" >
+                photo_uuid = #{photoUuid,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+        delete from photo_type
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+</mapper>

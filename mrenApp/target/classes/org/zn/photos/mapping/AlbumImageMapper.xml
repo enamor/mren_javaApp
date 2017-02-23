@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zn.photos.dao.AlbumImageDao" >
+    <resultMap id="BaseResultMap" type="org.zn.photos.entity.AlbumImage" >
+        <constructor >
+            <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <arg column="uuid" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="photo_uuid" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="image_url" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="image_width" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <arg column="image_height" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <arg column="image_size" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <arg column="praised_number" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <arg column="state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+        </constructor>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, uuid, photo_uuid, image_url, image_width, image_height, image_size, praised_number, 
+        state
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from album_image
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="org.zn.photos.entity.AlbumImage" >
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into album_image (uuid, photo_uuid, image_url, 
+            image_width, image_height, image_size, 
+            praised_number, state)
+        values (#{uuid,jdbcType=VARCHAR}, #{photoUuid,jdbcType=VARCHAR}, #{imageUrl,jdbcType=VARCHAR}, 
+            #{imageWidth,jdbcType=INTEGER}, #{imageHeight,jdbcType=INTEGER}, #{imageSize,jdbcType=BIGINT}, 
+            #{praisedNumber,jdbcType=BIGINT}, #{state,jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.zn.photos.entity.AlbumImage" >
+        update album_image
+        <set >
+            <if test="uuid != null" >
+                uuid = #{uuid,jdbcType=VARCHAR},
+            </if>
+            <if test="photoUuid != null" >
+                photo_uuid = #{photoUuid,jdbcType=VARCHAR},
+            </if>
+            <if test="imageUrl != null" >
+                image_url = #{imageUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="imageWidth != null" >
+                image_width = #{imageWidth,jdbcType=INTEGER},
+            </if>
+            <if test="imageHeight != null" >
+                image_height = #{imageHeight,jdbcType=INTEGER},
+            </if>
+            <if test="imageSize != null" >
+                image_size = #{imageSize,jdbcType=BIGINT},
+            </if>
+            <if test="praisedNumber != null" >
+                praised_number = #{praisedNumber,jdbcType=BIGINT},
+            </if>
+            <if test="state != null" >
+                state = #{state,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+        delete from album_image
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <select id="getAlbumImageList" resultMap="BaseResultMap" parameterType="java.lang.String" >
+        select 
+        <include refid="Base_Column_List" />
+        from album_image
+        where photo_uuid = #{photoUuid,jdbcType=VARCHAR}
+    </select>
+
+</mapper>

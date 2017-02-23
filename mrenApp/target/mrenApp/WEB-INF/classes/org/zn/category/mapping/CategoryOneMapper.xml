@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zn.category.dao.CategoryOneDao" >
+    <resultMap id="BaseResultMap" type="org.zn.category.entity.CategoryOne" >
+        <constructor >
+            <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
+            <arg column="cid" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <arg column="state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <arg column="sort_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+        </constructor>
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, cid, name, state, sort_id
+    </sql>
+
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+        select 
+        <include refid="Base_Column_List" />
+        from category_1
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <insert id="insert" parameterType="org.zn.category.entity.CategoryOne" >
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into category_1 (cid, name, state, 
+            sort_id)
+        values (#{cid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+            #{sortId,jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.zn.category.entity.CategoryOne" >
+        update category_1
+        <set >
+            <if test="cid != null" >
+                cid = #{cid,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null" >
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null" >
+                state = #{state,jdbcType=INTEGER},
+            </if>
+            <if test="sortId != null" >
+                sort_id = #{sortId,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+        delete from category_1
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    
+    <select id="getCategoryList" resultMap="BaseResultMap" >
+        SELECT *FROM category_1 WHERE state = 1
+    </select>
+
+</mapper>

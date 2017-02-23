@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.zn.photos.dao.PhotoAlbumDao">
+	<resultMap id="BaseResultMap" type="org.zn.photos.entity.PhotoAlbum">
+		<constructor>
+			<idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
+			<arg column="uuid" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="album_path" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="image_url" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="title" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="image_width" jdbcType="INTEGER" javaType="java.lang.Integer" />
+			<arg column="image_height" jdbcType="INTEGER" javaType="java.lang.Integer" />
+			<arg column="image_size" jdbcType="BIGINT" javaType="java.lang.Long" />
+			<arg column="state" jdbcType="INTEGER" javaType="java.lang.Integer" />
+			<arg column="watch" jdbcType="BIGINT" javaType="java.lang.Long" />
+			<arg column="source" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="created_time" jdbcType="VARCHAR" javaType="java.lang.String" />
+		</constructor>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, uuid, album_path, image_url, title, image_width,
+		image_height,
+		image_size, state,
+		watch, source, created_time
+	</sql>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from photo_album
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<insert id="insert" parameterType="org.zn.photos.entity.PhotoAlbum">
+		<selectKey resultType="java.lang.Long" keyProperty="id"
+			order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into photo_album (uuid, album_path, image_url,
+		title,
+		image_width, image_height,
+		image_size, state, watch,
+		source,
+		created_time)
+		values (#{uuid,jdbcType=VARCHAR},
+		#{albumPath,jdbcType=VARCHAR},
+		#{imageUrl,jdbcType=VARCHAR},
+		#{title,jdbcType=VARCHAR}, #{imageWidth,jdbcType=INTEGER},
+		#{imageHeight,jdbcType=INTEGER},
+		#{imageSize,jdbcType=BIGINT},
+		#{state,jdbcType=INTEGER},
+		#{watch,jdbcType=BIGINT},
+		#{source,jdbcType=VARCHAR}, #{createdTime,jdbcType=VARCHAR})
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="org.zn.photos.entity.PhotoAlbum">
+		update photo_album
+		<set>
+			<if test="uuid != null">
+				uuid = #{uuid,jdbcType=VARCHAR},
+			</if>
+			<if test="albumPath != null">
+				album_path = #{albumPath,jdbcType=VARCHAR},
+			</if>
+			<if test="imageUrl != null">
+				image_url = #{imageUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="title != null">
+				title = #{title,jdbcType=VARCHAR},
+			</if>
+			<if test="imageWidth != null">
+				image_width = #{imageWidth,jdbcType=INTEGER},
+			</if>
+			<if test="imageHeight != null">
+				image_height = #{imageHeight,jdbcType=INTEGER},
+			</if>
+			<if test="imageSize != null">
+				image_size = #{imageSize,jdbcType=BIGINT},
+			</if>
+			<if test="state != null">
+				state = #{state,jdbcType=INTEGER},
+			</if>
+			<if test="watch != null">
+				watch = #{watch,jdbcType=BIGINT},
+			</if>
+			<if test="source != null">
+				source = #{source,jdbcType=VARCHAR},
+			</if>
+			<if test="createdTime != null">
+				created_time = #{createdTime,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where uuid = #{uuid,jdbcType=VARCHAR}
+	</update>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from
+		photo_album
+		where id = #{id,jdbcType=BIGINT}
+	</delete>
+
+	<!-- 获取最新创建的相册 -->
+	<select id="getLatestPhotoAlbum" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from photo_album
+		ORDER BY created_time DESC limit 6
+	</select>
+
+	<!-- 通过分类ID获取相册列表 -->
+	<!-- <select id="getPhotoAlbumList" resultMap="BaseResultMap" parameterType="java.lang.String"> 
+		SELECT al.* FROM `photo_album` al left join `photo_type` pt ON al.uuid = 
+		pt.photo_uuid where pt.category_id = #{categoryId,jdbcType=VARCHAR} </select> -->
+
+	<!-- 分页查询 categoryId start rows state -->
+	<select id="getPhotoAlbumList" resultMap="BaseResultMap">
+	    SELECT
+		<include refid="Base_Column_List" />
+		FROM photo_album WHERE id in (
+        SELECT id FROM (SELECT al.id FROM
+		`photo_album` al left join `photo_type` pt
+		ON al.uuid = pt.photo_uuid
+		where pt.category_id = #{categoryId,jdbcType=VARCHAR}
+		and al.state = #{state,jdbcType=INTEGER}
+		ORDER BY al.id DESC
+		LIMIT #{start,jdbcType=INTEGER} ,#{rows,jdbcType=INTEGER}) as temp) 
+		ORDER BY id desc
+	</select>
+	
+	<!-- 分页查询 获取上线 和 正常状态下的 categoryId start rows -->
+	<select id="getAlbumList" resultMap="BaseResultMap">
+	    SELECT
+		<include refid="Base_Column_List" />
+		FROM photo_album WHERE id in (
+        SELECT id FROM (SELECT al.id FROM
+		`photo_album` al left join `photo_type` pt
+		ON al.uuid = pt.photo_uuid
+		where pt.category_id = #{categoryId,jdbcType=VARCHAR}
+		and al.state != 0
+		ORDER BY al.id DESC
+		LIMIT #{start,jdbcType=INTEGER} ,#{rows,jdbcType=INTEGER}) as temp) 
+		ORDER BY id desc
+	</select>
+	
+	
+
+<!-- 模糊分页查询 title start rows -->
+	<select id="fuzzyQueryAlbumList" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM photo_album WHERE id in (
+        SELECT id FROM (
+        SELECT id FROM `photo_album` where title LIKE CONCAT('%',#{title,jdbcType=VARCHAR},'%')
+        and state = #{state,jdbcType=INTEGER}
+		ORDER BY id DESC
+		LIMIT #{start,jdbcType=INTEGER} ,#{rows,jdbcType=INTEGER}) as temp) 
+		ORDER BY id desc
+	</select>
+
+</mapper>
